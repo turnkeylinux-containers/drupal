@@ -1,0 +1,70 @@
+#!/bin/bash
+set -exuo pipefail
+
+declare -ar BDEPS=(
+    wget
+    git
+)
+
+declare -ar DEPS=(
+    php7.2-gd
+    php7.2-xml
+    php7.2-opcache
+    php7.2-zip
+    php7.2-mbstring
+    php7.2-curl
+    php7.2-mysql
+    mariadb-client
+)
+
+declare -ar MODULES=(
+    ctools
+    field_group
+    google_analytics
+    honeypot
+    imce
+    pathauto
+    token
+)
+
+declare -r SRC='/usr/src'
+declare -r WEBROOT='/var/www/html'
+
+apt-get install "${BDEPS[@]}" "${DEPS[@]}"
+
+# install composer
+declare -r URL='https://getcomposer.org/installer'
+declare -r SIG="$(wget -q -O - https://composer.github.io/installer.sig)"
+
+wget -O composer-setup.php "${URL}"
+if [[ "${SIG}" != "$(sha384sum composer-setup.php | cut -d' ' -f1)" ]]; then
+    echo 'Composer signature verification failed.'
+    exit 1
+fi
+
+php composer-setup.php --quiet --install-dir=/usr/local/bin --filename=composer
+rm composer-setup.php
+
+chmod +x /usr/local/bin/composer
+
+mkdir -p /usr/local/share/composer
+chown -R www-data:www-data /usr/local/share/composer
+
+# install drupal8 project
+
+export COMPOSER_HOME=/usr/local/share/composer
+composer create-project drupal-composer/drupal-project:8.x-dev "${SRC}/drupal" --stability dev --no-interaction
+
+cd "${SRC}/drupal"
+mkdir libraries
+
+# download modules
+for module in "${MODULES[@]}"; do
+    composer require drupal/${module}
+done
+
+chown -R www-data:www-data "${SRC}/drupal"
+tar czf /tmp/drupal.tar.gz -C "${SRC}/drupal" .
+rm -rf "${SRC}/drupal"
+mv /tmp/drupal.tar.gz "${SRC}"
+apt-get purge "${BDEPS[@]}"

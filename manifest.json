@@ -1,0 +1,112 @@
+{
+    "build": {
+        "KEEP_USER": "www-data"
+    },
+    "meta": {
+        "name": "drupal",
+        "version": "8",
+        "containers": [
+            {
+                "name": "drupal",
+                "version": "8",
+                "mountPoints": [
+                    {
+                        "sourceVolume": "webroot",
+                        "containerPath": "/var/www/html",
+                        "readOnly": false
+                    },
+                    {
+                        "sourceVolume": "vhosts",
+                        "containerPath": "/etc/turnkey/vhosts",
+                        "readOnly": false
+                    },
+                    {
+                        "sourceVolume": "initdb",
+                        "containerPath": "/etc/turnkey/initdb",
+                        "readOnly": false
+                    },
+                    {
+                        "sourceVolume": "secrets",
+                        "containerPath": "/etc/turnkey/secrets",
+                        "readOnly": true
+                    }
+                ],
+                "environment": {
+                    "APP_USER": "admin",
+                    "APP_PASS": "turnkey1",
+                    "APP_MAIL": "admin@example.com",
+                    "DB_USER": "drupal",
+                    "DB_NAME": "drupal",
+                    "DB_PASS": "turnkey1"
+                },
+                "cpu": 256,
+                "ram": 512,
+                "pre_confs": [
+                    {
+                        "name": "php-fpm",
+                        "version": "7.2"
+                    }
+                ]
+            },
+            {
+                "name": "nginx",
+                "version": "1.14.0",
+                "ports": {
+                    "80": "tcp",
+                    "443": "tcp"
+                },
+                "mountPoints": [
+                    {
+                        "sourceVolume": "webroot",
+                        "containerPath": "/var/www/html",
+                        "readOnly": true
+                    },
+                    {
+                        "sourceVolume": "vhosts",
+                        "containerPath": "/etc/turnkey/vhosts",
+                        "readOnly": true
+                    }
+                ],
+                "cpu": 256,
+                "ram": 256
+            },
+            {
+                "name": "mariadb",
+                "version": "10.1",
+                "mountPoints": [
+                    {
+                        "sourceVolume": "initdb",
+                        "containerPath": "/etc/turnkey/initdb",
+                        "readOnly": true
+                    },
+                    {
+                        "sourceVolume": "secrets",
+                        "containerPath": "/etc/turnkey/secrets",
+                        "readOnly": true
+                    }
+                ],
+                "environment": {
+                    "DB_USER": "drupal",
+                    "DB_NAME": "drupal",
+                    "DB_PASS": "turnkey1"
+                },
+                "cpu": 256,
+                "ram": 512
+            }
+        ],
+        "volumes": [
+            {
+                "name": "webroot"
+            },
+            {
+                "name": "vhosts"
+            },
+            {
+                "name": "initdb"
+            },
+            {
+                "name": "secrets"
+            }
+        ]
+    }
+}
