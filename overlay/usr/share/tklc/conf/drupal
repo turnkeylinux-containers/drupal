@@ -7,13 +7,13 @@ declare -ar BDEPS=(
 )
 
 declare -ar DEPS=(
-    php7.2-gd
-    php7.2-xml
-    php7.2-opcache
-    php7.2-zip
-    php7.2-mbstring
-    php7.2-curl
-    php7.2-mysql
+    php7.3-gd
+    php7.3-xml
+    php7.3-opcache
+    php7.3-zip
+    php7.3-mbstring
+    php7.3-curl
+    php7.3-mysql
     mariadb-client
 )
 
