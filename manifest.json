@@ -1,10 +1,11 @@
 {
-    "build": {
-        "KEEP_USER": "www-data"
-    },
     "meta": {
-        "name": "drupal",
-        "version": "8",
+        "build_args": {
+            "PRODUCT_NAME": "drupal",
+            "PRODUCT_VERSION": "8",
+            "KEEP_USER": "www-data",
+            "BASE_IMAGE": "qrntz/php-fpm:7.3"
+        },
         "containers": [
             {
                 "name": "drupal",
@@ -40,17 +41,11 @@
                     "DB_PASS": "turnkey1"
                 },
                 "cpu": 256,
-                "ram": 512,
-                "pre_confs": [
-                    {
-                        "name": "php-fpm",
-                        "version": "7.2"
-                    }
-                ]
+                "ram": 512
             },
             {
                 "name": "nginx",
-                "version": "1.14.0",
+                "version": "1.14.2",
                 "ports": {
                     "80": "tcp",
                     "443": "tcp"
@@ -72,7 +67,7 @@
             },
             {
                 "name": "mariadb",
-                "version": "10.1",
+                "version": "10.3",
                 "mountPoints": [
                     {
                         "sourceVolume": "initdb",
@@ -95,18 +90,10 @@
             }
         ],
         "volumes": [
-            {
-                "name": "webroot"
-            },
-            {
-                "name": "vhosts"
-            },
-            {
-                "name": "initdb"
-            },
-            {
-                "name": "secrets"
-            }
+            { "name": "webroot" },
+            { "name": "vhosts" },
+            { "name": "initdb" },
+            { "name": "secrets" }
         ]
     }
 }
