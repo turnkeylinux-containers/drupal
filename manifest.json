@@ -4,7 +4,7 @@
             "PRODUCT_NAME": "drupal",
             "PRODUCT_VERSION": "8",
             "KEEP_USER": "www-data",
-            "BASE_IMAGE": "php-fpm:7.3"
+            "BASE_IMAGE": "$REPO/php-fpm:7.3"
         },
         "containers": [
             {
