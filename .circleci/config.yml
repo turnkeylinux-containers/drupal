@@ -39,16 +39,17 @@ jobs:
           name: Test deployment
           command: |
             STACK_NAME="$PRODUCT_NAME-$CIRCLE_BUILD_NUM"
+            jq -f /usr/share/tklc/templates/ecs.jq manifest.json | jq -scf /usr/share/tklc/templates/cf.jq > template.json
             aws cloudformation create-stack \
             --capabilities CAPABILITY_IAM \
             --stack-name "$STACK_NAME" \
             --parameters 'ParameterKey=KeyName,ParameterValue=test' \
-            --template-body "$( jq -f /usr/share/tklc/templates/ecs.jq manifest.json | jq -scf /usr/share/tklc/templates/cf.jq )"
+            --template-body "$( cat template.json )"
             aws cloudformation wait stack-create-complete --stack-name "$STACK_NAME"
-            # curl $( aws cloudformation describe-stacks --stack-name "$STACK_NAME" --output text --query "Stacks[].Outputs[?OutputKey == 'ExternalELBUrl'].OutputValue" ) \
-            # | grep -q 'Welcome to nginx!'
-            # aws cloudformation delete-stack --stack-name "$PRODUCT_NAME-$CIRCLE_BUILD_NUM"
-            # aws cloudformation wait stack-delete-complete --stack-name "$PRODUCT_NAME-$CIRCLE_BUILD_NUM"
+            curl $( aws cloudformation describe-stacks --stack-name "$STACK_NAME" --output text --query "Stacks[].Outputs[?OutputKey == 'ExternalELBUrl'].OutputValue" ) -o output.html
+            grep -q 'Drupal' output.html
+            aws cloudformation delete-stack --stack-name "$PRODUCT_NAME-$CIRCLE_BUILD_NUM"
+            aws cloudformation wait stack-delete-complete --stack-name "$PRODUCT_NAME-$CIRCLE_BUILD_NUM"
 
 workflows:
   version: 2
